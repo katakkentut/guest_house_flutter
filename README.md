@@ -1,4 +1,4 @@
-# flutter_hotel_app_ui
+# guest_house_app
 
 A Flutter hotel booking app. UI by [maxonflutter](https://maxonflutter.com/)
 

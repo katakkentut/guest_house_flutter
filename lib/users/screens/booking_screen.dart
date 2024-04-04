@@ -1,5 +1,13 @@
+// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables, unused_result
+import 'dart:async';
+
 import 'package:flutter/material.dart';
-import 'package:flutter_hotel_app_ui/users/screens/header_section.dart';
+import 'package:guest_house_app/models/booking_model.dart';
+import 'package:guest_house_app/providers/all_booking_provider.dart';
+import 'package:guest_house_app/users/screens/header_section.dart';
+import 'package:guest_house_app/widgets/booking_card.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
+
 import '../../widgets/custom_nav_bar.dart';
 
 class BookingScreen extends StatefulWidget {
@@ -9,7 +17,7 @@ class BookingScreen extends StatefulWidget {
 
 class _BookingScreenState extends State<BookingScreen> {
   int _selectedIndex =
-      1; // State variable to keep track of the selected tab index
+      1; 
 
   @override
   Widget build(BuildContext context) {
@@ -17,10 +25,10 @@ class _BookingScreenState extends State<BookingScreen> {
     return Scaffold(
       backgroundColor: Colors.blue,
       bottomNavigationBar: CustomNavBar(
-        index: _selectedIndex, // Pass the selected index to CustomNavBar
+        index: _selectedIndex,
         onTabChanged: (int newIndex) {
           setState(() {
-            _selectedIndex = newIndex; // Update the selected index
+            _selectedIndex = newIndex;
           });
         },
       ),
@@ -38,12 +46,8 @@ class _BookingScreenState extends State<BookingScreen> {
               child: Column(
                 children: [
                   HeaderSection(),
-                  SizedBox(height: 40),
-                  Expanded(
-                    child: SingleChildScrollView(
-                      child: BookingPage(),
-                    ),
-                  ),
+                  SizedBox(height: 30),
+                  Expanded(child: NestedTabBar())
                 ],
               ),
             ),
@@ -54,284 +58,128 @@ class _BookingScreenState extends State<BookingScreen> {
   }
 }
 
-class BookingPage extends StatefulWidget {
+class NestedTabBar extends StatefulWidget {
+  const NestedTabBar({super.key});
+
   @override
-  _BookingPageState createState() => _BookingPageState();
+  State<NestedTabBar> createState() => _NestedTabBarState();
 }
 
-class _BookingPageState extends State<BookingPage> {
-  final FocusNode _searchFocusNode = FocusNode();
-  final TextEditingController _searchController = TextEditingController();
+class _NestedTabBarState extends State<NestedTabBar>
+    with TickerProviderStateMixin {
+  late final TabController _tabController;
 
   @override
-  Widget build(BuildContext context) {
-    return Material(
-      child: GestureDetector(
-        onTap: () {
-          _searchFocusNode.unfocus();
-        },
-        child: Container(
-          color: Colors.white,
-          child: Column(
-            children: [
-              Padding(
-                padding: EdgeInsetsDirectional.fromSTEB(16, 4, 16, 0),
-                child: TextFormField(
-                  controller: _searchController,
-                  focusNode: _searchFocusNode,
-                  // onChanged: _searchDentalBooks,
-                  obscureText: false,
-                  decoration: InputDecoration(
-                    labelText: 'Search for booking...',
-                    labelStyle: TextStyle(
-                      fontFamily: 'Plus Jakarta Sans',
-                      color: Color(0xFF57636C),
-                      fontSize: 14,
-                      fontWeight: FontWeight.normal,
-                    ),
-                    enabledBorder: OutlineInputBorder(
-                      borderSide: BorderSide(
-                        color: Colors.white,
-                        width: 2,
-                      ),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderSide: BorderSide(
-                        color: Color(0xFF4B39EF),
-                        width: 2,
-                      ),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    filled: true,
-                    fillColor: Color(0xFFF1F4F8),
-                    prefixIcon: Icon(
-                      Icons.search_outlined,
-                      color: Color(0xFF57636C),
-                    ),
-                  ),
-                  style: TextStyle(
-                    fontFamily: 'Plus Jakarta Sans',
-                    color: Color(0xFF14181B),
-                    fontSize: 14,
-                    fontWeight: FontWeight.normal,
-                  ),
-                  maxLines: null,
-                ),
-              ),
-              SizedBox(height: 10),
-              BookingItem(
-                  orderNumber: "22224345",
-                  from: '22 Jan 2022',
-                  to: '24 Jan 2022',
-                  totalAmount: 100.00,
-                  houseName: 'Tulip House',
-                  status: 'Approved'),
-              BookingItem(
-                  orderNumber: "22224345",
-                  from: '22 Jan 2022',
-                  to: '24 Jan 2022',
-                  totalAmount: 100.00,
-                  houseName: 'Tulip House',
-                  status: 'Pending'),
-              BookingItem(
-                  orderNumber: "22224345",
-                  from: '22 Jan 2022',
-                  to: '24 Jan 2022',
-                  totalAmount: 100.00,
-                  houseName: 'Tulip House',
-                  status: 'Approved'),
-              BookingItem(
-                  orderNumber: "22224345",
-                  from: '22 Jan 2022',
-                  to: '24 Jan 2022',
-                  totalAmount: 100.00,
-                  houseName: 'Tulip House',
-                  status: 'Pending'),
-              BookingItem(
-                  orderNumber: "22224345",
-                  from: '22 Jan 2022',
-                  to: '24 Jan 2022',
-                  totalAmount: 100.00,
-                  houseName: 'Tulip House',
-                  status: 'Pending'),
-              BookingItem(
-                  orderNumber: "22224345",
-                  from: '22 Jan 2022',
-                  to: '24 Jan 2022',
-                  totalAmount: 100.00,
-                  houseName: 'Tulip House',
-                  status: 'Pending'),
-            ],
-          ),
-        ),
-      ),
-    );
+  void initState() {
+    super.initState();
+    _tabController = TabController(length: 3, vsync: this);
   }
-}
 
-class BookingItem extends StatelessWidget {
-  final String orderNumber;
-  final String from;
-  final String to;
-  final double totalAmount;
-  final String houseName;
-  final String status;
-
-  const BookingItem({
-    required this.orderNumber,
-    required this.from,
-    required this.to,
-    required this.totalAmount,
-    required this.houseName,
-    required this.status,
-  });
+  @override
+  void dispose() {
+    _tabController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Material(
-      child: Padding(
-        padding: EdgeInsetsDirectional.fromSTEB(16, 0, 16, 0),
-        child: Container(
-          width: double.infinity,
-          constraints: BoxConstraints(
-            maxWidth: 570,
-          ),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(8),
-            border: Border.all(
-              color: Color(0xFFE5E7EB),
-              width: 2,
-            ),
-          ),
-          child: Padding(
-            padding: EdgeInsetsDirectional.fromSTEB(16, 12, 16, 12),
-            child: Row(
-              mainAxisSize: MainAxisSize.max,
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Padding(
-                  padding: EdgeInsetsDirectional.fromSTEB(0, 0, 12, 0),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.max,
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      RichText(
-                        text: TextSpan(
-                          children: [
-                            TextSpan(
-                              text: 'Book Id #: ',
-                              style: TextStyle(),
-                            ),
-                            TextSpan(
-                              text: orderNumber,
-                              style: TextStyle(
-                                color: Color(0xFF6F61EF),
-                                fontWeight: FontWeight.bold,
-                              ),
-                            )
-                          ],
-                          style: TextStyle(
-                            fontFamily: 'Plus Jakarta Sans',
-                            color: Color(0xFF15161E),
-                            fontSize: 16,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ), textScaler: TextScaler.linear(MediaQuery.of(context).textScaleFactor),
-                      ),
-                      Padding(
-                        padding: EdgeInsetsDirectional.fromSTEB(0, 4, 0, 0),
-                        child: Text(
-                          houseName,
-                          style: TextStyle(
-                            fontFamily: 'Outfit',
-                            fontSize: 14,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                      Padding(
-                        padding: EdgeInsetsDirectional.fromSTEB(0, 4, 0, 0),
-                        child: Text(
-                          "From: $from",
-                          style: TextStyle(
-                            fontFamily: 'Outfit',
-                            color: Color(0xFF606A85),
-                            fontSize: 14,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                      ),
-                      Padding(
-                        padding: EdgeInsetsDirectional.fromSTEB(0, 4, 0, 0),
-                        child: Text(
-                          "To: $to",
-                          style: TextStyle(
-                            fontFamily: 'Outfit',
-                            color: Color(0xFF606A85),
-                            fontSize: 14,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
+    return Column(
+      children: <Widget>[
+        TabBar.secondary(
+          controller: _tabController,
+          tabs: const <Widget>[
+            Tab(text: "Today's Book"),
+            Tab(text: 'Pending'),
+            Tab(text: 'Approved'),
+          ],
+          indicatorColor: Colors.blueAccent,
+        ),
+        Expanded(
+          child: Container(
+            child: TabBarView(
+              controller: _tabController,
+              children: <Widget>[
+                Container(
+                  margin: const EdgeInsets.all(3.0),
+                  child: SingleChildScrollView(
+                      child:
+                          _PendingBookingSection(bookingStatus: 'todayBook')),
                 ),
-                Column(
-                  mainAxisSize: MainAxisSize.max,
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: [
-                    Padding(
-                      padding: EdgeInsetsDirectional.fromSTEB(0, 0, 0, 12),
-                      child: Text(
-                        "RM $totalAmount",
-                        textAlign: TextAlign.end,
-                        style: TextStyle(
-                          fontFamily: 'Outfit',
-                          color: Color(0xFF15161E),
-                          fontSize: 22,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                    Padding(
-                      padding: EdgeInsetsDirectional.fromSTEB(0, 12, 0, 0),
-                      child: Container(
-                        height: 32,
-                        decoration: BoxDecoration(
-                          color: Colors.green[200],
-                          borderRadius: BorderRadius.circular(12),
-                          border: Border.all(
-                            color: Color.fromARGB(255, 36, 28, 105),
-                            width: 2,
-                          ),
-                        ),
-                        child: Align(
-                          alignment: AlignmentDirectional(0, 0),
-                          child: Padding(
-                            padding:
-                                EdgeInsetsDirectional.fromSTEB(12, 0, 12, 0),
-                            child: Text(
-                              status,
-                              style: TextStyle(
-                                fontFamily: 'Plus Jakarta Sans',
-                                color: Colors.black,
-                                fontSize: 14,
-                                fontWeight: FontWeight.w500,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
+                Container(
+                  margin: const EdgeInsets.all(5.0),
+                  child: SingleChildScrollView(
+                      child: _PendingBookingSection(bookingStatus: 'Pending')),
+                ),
+                Container(
+                  margin: const EdgeInsets.all(5.0),
+                  child: SingleChildScrollView(
+                      child: _PendingBookingSection(bookingStatus: 'Approved')),
                 ),
               ],
             ),
           ),
         ),
+      ],
+    );
+  }
+}
+
+class _PendingBookingSection extends HookConsumerWidget {
+  const _PendingBookingSection({Key? key, required this.bookingStatus})
+      : super(key: key);
+  final String bookingStatus;
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final refreshCompleter = Completer<void>();
+
+    void _refresh() {
+      ref.refresh(allBookingProvider(bookingStatus));
+      refreshCompleter.complete();
+    }
+
+    return RefreshIndicator(
+      onRefresh: () {
+        _refresh();
+        return refreshCompleter.future;
+      },
+      child: FutureBuilder<List<BookingModel>>(
+        future: ref.watch(allBookingProvider(bookingStatus).future),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            if (!refreshCompleter.isCompleted) {
+              return Padding(
+                padding: const EdgeInsets.all(20.0),
+                child: const Center(
+                    child: CircularProgressIndicator(
+                  valueColor: AlwaysStoppedAnimation<Color>(Colors.blue),
+                  strokeWidth: 5.0,
+                  backgroundColor: Colors.white,
+                )),
+              );
+            }
+          } else if (snapshot.hasError) {
+            return Text('Error: ${snapshot.error}');
+          } else {
+            final bookings = snapshot.data!;
+            if (bookings.isEmpty) {
+              return Padding(
+                padding: const EdgeInsets.all(20.0),
+                child: Center(
+                    child: Text('No $bookingStatus booking available yet')),
+              );
+            }
+            return ListView.builder(
+              shrinkWrap: true,
+              physics: NeverScrollableScrollPhysics(),
+              itemCount: bookings.length,
+              itemBuilder: (BuildContext context, int index) {
+                BookingModel booking = bookings[index];
+                return BookingItemCard(booking: booking);
+              },
+            );
+          }
+          return const SizedBox();
+        },
       ),
     );
   }

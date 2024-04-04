@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_hotel_app_ui/auth/screens/auth_notifier.dart';
-import 'package:flutter_hotel_app_ui/gen/assets.gen.dart';
-import 'package:flutter_hotel_app_ui/users/services/update_profile_sevice.dart';
-import 'package:flutter_hotel_app_ui/users/widgets1/custom_icon_container.dart';
-import 'package:flutter_hotel_app_ui/utils/api-endpoint.dart';
+import 'package:guest_house_app/auth/screens/auth_notifier.dart';
+import 'package:guest_house_app/users/services/update_profile_sevice.dart';
+import 'package:guest_house_app/utils/api-endpoint.dart';
 import 'package:provider/provider.dart' as prov;
 
 class HeaderSection extends StatefulWidget {
@@ -34,11 +32,9 @@ class _HeaderSectionState extends State<HeaderSection> {
     var result = await UpdateProfileService().fetchUser();
     setState(() {
       isLoading = false;
-      if (result['status']) {
-        profileImage = ApiEndPoints.baseUrl +
-            ApiEndPoints.authEndpoints.userProfile +
-            result['message']['userImage'];
-      }
+      profileImage = ApiEndPoints.baseUrl +
+          ApiEndPoints.userEndpoints.userProfile +
+          result['message']['userImage'];
     });
   }
 
@@ -53,13 +49,25 @@ class _HeaderSectionState extends State<HeaderSection> {
             ? Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  if (!isLoading && profileImage.isNotEmpty)
-                    CircleAvatar(
-                      radius: 25,
-                      backgroundImage: NetworkImage(profileImage),
-                    ),
-                  CustomIconButton(
-                    icon: Assets.icon.notification.svg(height: 25),
+                  Stack(
+                    children: [
+                      SizedBox(
+                        height: 10,
+                      ),
+                      Container(
+                        width: 50,
+                        height: 50,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: Colors.grey[200],
+                        ),
+                      ),
+                      if (!isLoading && profileImage.isNotEmpty)
+                        CircleAvatar(
+                          radius: 25,
+                          backgroundImage: NetworkImage(profileImage),
+                        ),
+                    ],
                   ),
                 ],
               )

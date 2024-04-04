@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:guest_house_app/admin/screens/admin_edit_delete_price.dart';
+import 'package:get/get.dart';
 
 import '../gen/assets.gen.dart';
 import '../gen/colors.gen.dart';
-import '../users/models/hotel_model.dart';
+import '../models/hotel_model.dart';
 import '../users/screens/hotel_screen.dart';
 import 'app_text.dart';
 import 'custom_rating.dart';
@@ -11,20 +13,26 @@ class HotelCard extends StatelessWidget {
   const HotelCard({
     Key? key,
     required this.hotel,
+    this.option,
   }) : super(key: key);
 
   final HotelModel hotel;
+  final String? option;
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => HotelDetailScreen(hotel: hotel),
-          ),
-        );
+        if (option != null) {
+        Get.to(() => EditDeleteHousePrice(hotel: hotel));
+        } else {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => HotelDetailScreen(hotel: hotel),
+            ),
+          );
+        }
       },
       child: Container(
         margin: const EdgeInsets.only(top: 10),
@@ -76,7 +84,8 @@ class HotelCard extends StatelessWidget {
                     ),
                     Padding(
                       padding: const EdgeInsets.symmetric(vertical: 12),
-                      child: CustomRating(ratingScore: hotel.ratingScore ?? 0.0),
+                      child:
+                          CustomRating(ratingScore: hotel.ratingScore ?? 0.0),
                     ),
                     RichText(
                       text: TextSpan(

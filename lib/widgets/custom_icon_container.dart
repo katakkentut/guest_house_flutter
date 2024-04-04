@@ -19,7 +19,7 @@ class CustomIconButton extends StatelessWidget {
         color: Colors.white,
         borderRadius: BorderRadius.circular(20.0),
       ),
-      child: IconButton(onPressed: onPressed, icon: icon),
+      child: IconButton(onPressed: onPressed, icon: icon,),
     );
   }
 }

@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_hotel_app_ui/auth/screens/auth_notifier.dart';
-import 'package:flutter_hotel_app_ui/auth/screens/signin.dart';
-import 'package:flutter_hotel_app_ui/users/screens/favourite_house.dart';
-import 'package:flutter_hotel_app_ui/users/screens/header_section.dart';
-import 'package:flutter_hotel_app_ui/users/screens/reset_password.dart';
-import 'package:flutter_hotel_app_ui/users/screens/update-profile.dart';
+import 'package:guest_house_app/auth/screens/auth_notifier.dart';
+import 'package:guest_house_app/auth/screens/signin.dart';
+import 'package:guest_house_app/users/screens/about_us_screen.dart';
+import 'package:guest_house_app/users/screens/favourite_house.dart';
+import 'package:guest_house_app/users/screens/header_section.dart';
+import 'package:guest_house_app/users/screens/reset_password.dart';
+import 'package:guest_house_app/users/screens/update-profile.dart';
+import 'package:guest_house_app/users/screens/view_policy_screen.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:progress_dialog_null_safe/progress_dialog_null_safe.dart';
 import '../../widgets/custom_nav_bar.dart';
@@ -93,7 +95,8 @@ class _SettingItemState extends State<SettingItem> {
                   title: "View Policy",
                   icon: CupertinoIcons.doc_text,
                   onTap: () {
-                    print("View Policy");
+                    Get.to(() => PolicyScreenState(),
+                        transition: Transition.rightToLeftWithFade);
                   }),
             ],
           ),
@@ -124,7 +127,8 @@ class _SettingItemState extends State<SettingItem> {
                 title: "About",
                 icon: Icons.info_outline_rounded,
                 onTap: () {
-                  print("About");
+                  Get.to(() => AboutUsScreen(),
+                      transition: Transition.rightToLeftWithFade);
                 }),
             _CustomListTile1(
               title: authNotifier.isLoggedIn ? "Sign out" : "Sign in",
@@ -171,7 +175,8 @@ class _CustomListTile extends StatelessWidget {
       {Key? key,
       required this.title,
       required this.icon,
-      required this.onTap, this.trailing})
+      required this.onTap,
+      this.trailing})
       : super(key: key);
 
   @override
@@ -207,8 +212,10 @@ class _SingleSection extends StatelessWidget {
           padding: const EdgeInsets.all(8.0),
           child: Text(
             title.toUpperCase(),
-            style:
-                Theme.of(context).textTheme.displaySmall?.copyWith(fontSize: 16),
+            style: Theme.of(context)
+                .textTheme
+                .displaySmall
+                ?.copyWith(fontSize: 16),
           ),
         ),
         Container(
@@ -232,7 +239,8 @@ class _CustomListTile1 extends StatelessWidget {
       {Key? key,
       required this.title,
       required this.icon,
-      required this.onTap, this.trailing})
+      required this.onTap,
+      this.trailing})
       : super(key: key);
 
   @override
@@ -254,7 +262,8 @@ class _SingleSection1 extends StatelessWidget {
 
   const _SingleSection1({
     Key? key,
-    required this.children, this.title,
+    required this.children,
+    this.title,
   }) : super(key: key);
 
   @override

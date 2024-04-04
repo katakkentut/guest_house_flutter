@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_hotel_app_ui/gen/colors.gen.dart';
-import 'package:flutter_hotel_app_ui/users/services/reset_password_service.dart';
-import 'package:flutter_hotel_app_ui/widgets/app_text.dart';
+import 'package:guest_house_app/gen/colors.gen.dart';
+import 'package:guest_house_app/users/services/reset_password_service.dart';
+import 'package:guest_house_app/widgets/app_text.dart';
 
 class ResetPasswordScreen extends StatefulWidget {
   const ResetPasswordScreen({Key? key}) : super(key: key);

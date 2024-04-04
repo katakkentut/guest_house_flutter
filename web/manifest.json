@@ -1,6 +1,6 @@
 {
-    "name": "flutter_hotel_app_ui",
-    "short_name": "flutter_hotel_app_ui",
+    "name": "guest_house_app",
+    "short_name": "guest_house_app",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",

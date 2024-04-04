@@ -1,34 +1,39 @@
+// ignore_for_file: prefer_const_constructors
+
 import 'package:flutter/material.dart';
 import 'package:flutter_config/flutter_config.dart';
-import 'package:flutter_hotel_app_ui/auth/screens/auth_notifier.dart';
+import 'package:guest_house_app/admin/screens/admin_home_screen.dart';
+import 'package:guest_house_app/users/screens/home_screen.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get/get.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:provider/provider.dart' as prov;
 import 'gen/colors.gen.dart';
 import 'gen/fonts.gen.dart';
-import 'users/screens/home_screen.dart';
+import 'package:guest_house_app/auth/screens/auth_notifier.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await FlutterConfig.loadEnvVariables();
 
-  // Check if the user is logged in
   final storage = FlutterSecureStorage();
   String? accessToken = await storage.read(key: 'accessToken');
+  String? userType = await storage.read(key: 'userType');
   bool isLoggedIn = accessToken != null;
+  bool isAdmin = userType == 'admin';
 
   runApp(
     prov.ChangeNotifierProvider(
-      create: (context) =>
-          AuthNotifier(isLoggedIn), // Provide AuthNotifier with isLoggedIn
-      child: ProviderScope(child: HotelApp()),
+      create: (context) => AuthNotifier(isLoggedIn, userType ?? ''),
+      child: ProviderScope(child: HotelApp(isAdmin: isAdmin)),
     ),
   );
 }
 
 class HotelApp extends StatelessWidget {
-  const HotelApp({Key? key}) : super(key: key);
+  final bool isAdmin;
+
+  const HotelApp({Key? key, required this.isAdmin}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -36,6 +41,7 @@ class HotelApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'Flutter Hotel App UI',
       theme: ThemeData(
+        primaryColor: Colors.blue,
         fontFamily: FontFamily.workSans,
         primarySwatch: ColorName.primarySwatch,
         textTheme: TextTheme(
@@ -44,35 +50,11 @@ class HotelApp extends StatelessWidget {
           bodySmall: TextStyle(fontSize: 14.0),
         ),
         inputDecorationTheme: InputDecorationTheme(
-          labelStyle: TextStyle(fontSize: 18.0), // Set the font size to 20
-          hintStyle: TextStyle(fontSize: 16.0), // Set the font size to 20
-          
+          labelStyle: TextStyle(fontSize: 18.0),
+          hintStyle: TextStyle(fontSize: 16.0),
         ),
       ),
-      home: const HomeScreen(),
+      home: isAdmin ? const AdminHomeScreen() : const HomeScreen(),
     );
   }
 }
-//   @override
-//   Widget build(BuildContext context) {
-//     return MaterialApp(
-//       home: FutureBuilder<bool>(
-//         future: checkLoginStatus(),
-//         builder: (context, snapshot) {
-//           if (snapshot.connectionState == ConnectionState.done) {
-//             return snapshot.data ?? false ? HomeScreen() : SignInWidget();
-//           } else {
-//             return CircularProgressIndicator();
-//           }
-//         },
-//       ),
-//     );
-//   }
-// }
-
-
-// Future<bool> checkLoginStatus() async {
-//   const storage = FlutterSecureStorage();
-//   final accessToken = await storage.read(key: 'accessToken');
-//   return accessToken != null;
-// }

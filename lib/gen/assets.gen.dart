@@ -22,9 +22,22 @@ class $AssetsIconGen {
   /// File path: assets/icon/calendar.svg
   SvgGenImage get calendar => const SvgGenImage('assets/icon/calendar.svg');
 
+  /// File path: assets/icon/check-mark.png
+  AssetGenImage get checkMark =>
+      const AssetGenImage('assets/icon/check-mark.png');
+
+  /// File path: assets/icon/check.png
+  AssetGenImage get check => const AssetGenImage('assets/icon/check.png');
+
   /// File path: assets/icon/chevron-down.svg
   SvgGenImage get chevronDown =>
       const SvgGenImage('assets/icon/chevron-down.svg');
+
+  /// File path: assets/icon/clock.png
+  AssetGenImage get clock => const AssetGenImage('assets/icon/clock.png');
+
+  /// File path: assets/icon/export.png
+  AssetGenImage get export => const AssetGenImage('assets/icon/export.png');
 
   /// File path: assets/icon/forgot-password.png
   AssetGenImage get forgotPassword =>
@@ -55,6 +68,9 @@ class $AssetsIconGen {
   /// File path: assets/icon/profile.svg
   SvgGenImage get profile => const SvgGenImage('assets/icon/profile.svg');
 
+  /// File path: assets/icon/reject.png
+  AssetGenImage get reject => const AssetGenImage('assets/icon/reject.png');
+
   /// File path: assets/icon/wishlist.svg
   SvgGenImage get wishlist => const SvgGenImage('assets/icon/wishlist.svg');
 
@@ -62,7 +78,11 @@ class $AssetsIconGen {
   List<dynamic> get values => [
         booking,
         calendar,
+        checkMark,
+        check,
         chevronDown,
+        clock,
+        export,
         forgotPassword,
         home,
         like,
@@ -72,6 +92,7 @@ class $AssetsIconGen {
         pin,
         pinPng,
         profile,
+        reject,
         wishlist
       ];
 }

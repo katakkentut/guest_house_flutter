@@ -1,11 +1,14 @@
-// ignore_for_file: prefer_const_constructors
+// ignore_for_file: prefer_const_constructors, use_build_context_synchronously
 
-import 'package:flutter_hotel_app_ui/auth/screens/auth_notifier.dart';
-import 'package:flutter_hotel_app_ui/auth/screens/signup.dart';
+import 'package:guest_house_app/admin/screens/admin_home_screen.dart';
+import 'package:guest_house_app/auth/screens/auth_notifier.dart';
+import 'package:guest_house_app/auth/screens/signup.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_hotel_app_ui/auth/screens/user_singleton.dart';
-import 'package:flutter_hotel_app_ui/auth/services/signup-service.dart';
+import 'package:guest_house_app/auth/screens/user_singleton.dart';
+import 'package:guest_house_app/auth/services/signin-service.dart';
+import 'package:guest_house_app/users/screens/home_screen.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:get/get.dart';
 import 'package:provider/provider.dart';
 
 class SignInWidget extends StatefulWidget {
@@ -43,8 +46,7 @@ class _SignInWidgetState extends State<SignInWidget> {
             height: double.infinity,
             decoration: BoxDecoration(
               image: DecorationImage(
-                image:
-                    AssetImage('assets/logo/bg.png'), // replace with your image
+                image: AssetImage('assets/logo/bg.png'),
                 fit: BoxFit.cover,
               ),
             ),
@@ -54,11 +56,10 @@ class _SignInWidgetState extends State<SignInWidget> {
               mainAxisSize: MainAxisSize.max,
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                // Placeholder for your logo, replace with your own logo widget
                 Padding(
                   padding: const EdgeInsets.only(top: 50),
                   child: Image.asset(
-                    'assets/logo/airplane.png', // Replace with the path to your image
+                    'assets/logo/airplane.png',
                     width: 300,
                     height: 300,
                   ),
@@ -189,18 +190,30 @@ class _SignInWidgetState extends State<SignInWidget> {
                                 passwordController.text,
                               );
                               if (result['status']) {
-                                // ignore: use_build_context_synchronously
-
-                                const storage = FlutterSecureStorage();
+                                FlutterSecureStorage storage =
+                                    FlutterSecureStorage();
+                                String? userType =
+                                    await storage.read(key: 'userType');
+                                print("User type>> $userType");
                                 final accessToken =
                                     await storage.read(key: 'accessToken');
 
                                 Provider.of<AuthNotifier>(context,
                                         listen: false)
                                     .setLoggedIn(true);
+                                Provider.of<AuthNotifier>(context,
+                                        listen: false)
+                                    .setUserType(userType!);
                                 UserSingleton _userSingleton = UserSingleton();
                                 _userSingleton.userId = accessToken;
-                                Navigator.pop(context, true);
+
+                                if (userType == 'admin') {
+                                  Get.offAll(AdminHomeScreen());
+                                } else if (userType == 'user') {
+                                  Get.offAll(HomeScreen());
+                                } else {
+                                  Navigator.pop(context, true);
+                                }
                               } else {
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   SnackBar(

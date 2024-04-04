@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_hotel_app_ui/widgets/app_text.dart';
+import 'package:guest_house_app/widgets/app_text.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import '../models/hotel_model.dart';
-import '../providers/all_hotels_provider.dart';
+import '../../models/hotel_model.dart';
+import '../../providers/all_hotels_provider.dart';
 import '../../widgets/hotel_card.dart';
 
 class FavouriteHouseScreen extends StatefulWidget {
@@ -84,7 +84,12 @@ class _NearbyHotelSection extends ConsumerWidget {
             ),
             const SizedBox(height: 4),
             hotels.when(
-              loading: () => const Center(child: CircularProgressIndicator()),
+              loading: () => const Center(
+                  child: CircularProgressIndicator(
+                valueColor: AlwaysStoppedAnimation<Color>(Colors.blue),
+                strokeWidth: 5.0,
+                backgroundColor: Colors.white,
+              )),
               error: (err, stack) => Text('Error: $err'),
               data: (hotels) {
                 return ListView.builder(

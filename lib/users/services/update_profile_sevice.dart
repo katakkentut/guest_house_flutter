@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:http/http.dart' as http;
 
-import 'package:flutter_hotel_app_ui/utils/api-endpoint.dart';
+import 'package:guest_house_app/utils/api-endpoint.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 class UpdateProfileService {
@@ -13,7 +13,7 @@ class UpdateProfileService {
 
       final response = await http.get(
         Uri.parse(
-            ApiEndPoints.baseUrl + ApiEndPoints.authEndpoints.updateProfile),
+            ApiEndPoints.baseUrl + ApiEndPoints.userEndpoints.updateProfile),
         headers: {'Authorization': 'Bearer $accessToken'},
       );
 
@@ -44,7 +44,7 @@ class UpdateProfileService {
       String? accessToken = await storage.read(key: 'accessToken');
       final response = await http.post(
         Uri.parse(
-            ApiEndPoints.baseUrl + ApiEndPoints.authEndpoints.updateProfile),
+            ApiEndPoints.baseUrl + ApiEndPoints.userEndpoints.updateProfile),
         body: jsonEncode({
           'fullname': fullname,
           'email': email,

@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_hotel_app_ui/users/screens/booking_screen.dart';
-import 'package:flutter_hotel_app_ui/users/screens/home_screen.dart';
-import 'package:flutter_hotel_app_ui/users/screens/setting_screen.dart';
+import 'package:guest_house_app/users/screens/booking_screen.dart';
+import 'package:guest_house_app/users/screens/home_screen.dart';
+import 'package:guest_house_app/users/screens/setting_screen.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get/get.dart';
 
 class CustomNavBar extends StatelessWidget {
@@ -40,13 +41,31 @@ class CustomNavBar extends StatelessWidget {
     );
   }
 
-  void _navigateToPage(BuildContext context, int newIndex) {
+  Future<bool> checkLogin() async {
+    const storage = FlutterSecureStorage();
+    String? accessToken = await storage.read(key: 'accessToken');
+    bool isLoggedIn = accessToken != null;
+    return isLoggedIn;
+  }
+
+  Future<void> _navigateToPage(BuildContext context, int newIndex) async {
     switch (newIndex) {
       case 0:
         Get.offAll(() => HomeScreen(), transition: Transition.fadeIn);
         break;
       case 1:
-        Get.offAll(() => BookingScreen(), transition: Transition.fadeIn);
+        if (await checkLogin()) {
+          Get.offAll(() => BookingScreen(), transition: Transition.fadeIn);
+        } else {
+          Get.showSnackbar(
+            const GetSnackBar(
+              title: 'Login Required',
+              message: 'Booking pages only available for authenticated users',
+              duration: Duration(seconds: 3),
+              backgroundColor: Colors.orange,
+            ),
+          );
+        }
         break;
       case 2:
         Get.offAll(() => SettingScreen(), transition: Transition.fadeIn);

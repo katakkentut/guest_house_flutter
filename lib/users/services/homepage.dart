@@ -1,6 +1,6 @@
 import 'dart:convert';
 
-import 'package:flutter_hotel_app_ui/utils/api-endpoint.dart';
+import 'package:guest_house_app/utils/api-endpoint.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' as http;
 
@@ -8,9 +8,8 @@ class HomePageService {
   Future getHomePageData() async {
 
     final response = await http.get(Uri.parse(
-        ApiEndPoints.baseUrl + ApiEndPoints.authEndpoints.userProfile ));
+        ApiEndPoints.baseUrl + ApiEndPoints.userEndpoints.userProfile ));
     if (response.statusCode == 200) {
-      print(jsonDecode(response.body));
       return jsonDecode(response.body);
     } else {
       throw Exception('Failed to load data');
@@ -24,7 +23,7 @@ class HomePageService {
       String? accessToken = await storage.read(key: 'accessToken');
 
       final response = await http.post(
-        Uri.parse(ApiEndPoints.baseUrl + ApiEndPoints.authEndpoints.favourite),
+        Uri.parse(ApiEndPoints.baseUrl + ApiEndPoints.userEndpoints.favourite),
         body: jsonEncode({
           'house_id': houseId,
         }),

@@ -1,22 +1,26 @@
+// ignore_for_file: prefer_interpolation_to_compose_strings, prefer_const_constructors
+
 import 'dart:async';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_hotel_app_ui/auth/screens/auth_notifier.dart';
-import 'package:flutter_hotel_app_ui/auth/screens/signin.dart';
-import 'package:flutter_hotel_app_ui/users/screens/reserve_screen.dart';
-import 'package:flutter_hotel_app_ui/users/services/hotel_service.dart';
-import 'package:flutter_hotel_app_ui/utils/api-endpoint.dart';
+import 'package:guest_house_app/auth/screens/auth_notifier.dart';
+import 'package:guest_house_app/auth/screens/signin.dart';
+import 'package:guest_house_app/users/screens/reserve_screen.dart';
+import 'package:guest_house_app/users/services/hotel_service.dart';
+import 'package:guest_house_app/utils/api-endpoint.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:get/get.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:provider/provider.dart';
-
 import '../../gen/assets.gen.dart';
 import '../../gen/colors.gen.dart';
-import '../models/hotel_model.dart';
+import '../../models/hotel_model.dart';
 import '../../widgets/app_text.dart';
 import '../../widgets/custom_button.dart';
 import '../../widgets/custom_icon_container.dart';
@@ -34,11 +38,19 @@ class HotelDetailScreen extends StatefulWidget {
   final HotelModel hotel;
 }
 
+Future _checkUserType() async {
+  const storage = FlutterSecureStorage();
+  String? userType = await storage.read(key: 'userType');
+  return userType;
+}
+
 class _HotelDetailScreenState extends State<HotelDetailScreen> {
   bool showAllReviews = false; // Define the showAllReviews variable
 
   @override
   Widget build(BuildContext context) {
+    final authNotifier = Provider.of<AuthNotifier>(context, listen: true);
+
     final size = MediaQuery.of(context).size;
     return Scaffold(
       body: Stack(
@@ -109,7 +121,7 @@ class _HotelDetailScreenState extends State<HotelDetailScreen> {
                                 final review = widget.hotel.userReview[index];
                                 return _ReviewSectionState(
                                   profileImage: ApiEndPoints.baseUrl +
-                                      ApiEndPoints.authEndpoints.userProfile +
+                                      ApiEndPoints.userEndpoints.userProfile +
                                       "/" +
                                       review.profileImage,
                                   name: review.userName,
@@ -140,31 +152,34 @@ class _HotelDetailScreenState extends State<HotelDetailScreen> {
                       icon: Assets.icon.chevronDown.svg(height: 25),
                       onPressed: () => Navigator.of(context).pop(),
                     ),
-                    CustomIconButton(
-                      icon: Assets.icon.wishlist.svg(height: 25),
-                      onPressed: () async {
-                        var result = await HotelPageService()
-                            .addFavourite(widget.hotel.id.toString());
+                    if (authNotifier.userType == 'user')
+                      CustomIconButton(
+                        icon: Assets.icon.wishlist.svg(
+                          height: 25,
+                        ),
+                        onPressed: () async {
+                          var result = await HotelPageService()
+                              .addFavourite(widget.hotel.id.toString());
 
-                        if (result['status']) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text(result['message']),
-                              backgroundColor: Colors.green,
-                              duration: const Duration(seconds: 1),
-                            ),
-                          );
-                        } else {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text(result['message']),
-                              backgroundColor: Colors.red,
-                              duration: const Duration(seconds: 1),
-                            ),
-                          );
-                        }
-                      },
-                    ),
+                          if (result['status']) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text(result['message']),
+                                backgroundColor: Colors.green,
+                                duration: const Duration(seconds: 1),
+                              ),
+                            );
+                          } else {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text(result['message']),
+                                backgroundColor: Colors.red,
+                                duration: const Duration(seconds: 1),
+                              ),
+                            );
+                          }
+                        },
+                      ),
                   ],
                 ),
               ),
@@ -285,7 +300,9 @@ class _FacilitiesSection extends StatelessWidget {
               _buildIconWithLabel(
                 getIconForFacility(facilities[i + 1]),
                 facilities[i + 1],
-              ),
+              )
+            else
+              Container(),
           ],
         ),
       );
@@ -605,7 +622,7 @@ class __ReviewSectionStateState extends State<_ReviewSectionState> {
   }
 }
 
-class _ReserveBar extends StatelessWidget {
+class _ReserveBar extends StatefulWidget {
   const _ReserveBar({
     Key? key,
     required this.price,
@@ -614,6 +631,164 @@ class _ReserveBar extends StatelessWidget {
 
   final double price;
   final String houseId;
+
+  @override
+  State<_ReserveBar> createState() => _ReserveBarState();
+}
+
+class _ReserveBarState extends State<_ReserveBar> {
+  List<dynamic> policies = [];
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      fetchPolicy();
+    });
+  }
+
+  void fetchPolicy() async {
+    try {
+      final storage = FlutterSecureStorage();
+      String? accessToken = await storage.read(key: 'accessToken');
+
+      final response = await http.get(
+        Uri.parse(
+            ApiEndPoints.baseUrl + ApiEndPoints.userEndpoints.housePolicy),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $accessToken'
+        },
+      );
+
+      if (response.statusCode == 200) {
+        setState(() {
+          policies = jsonDecode(response.body);
+        });
+      } else {
+        print('Error: ${response.statusCode}');
+      }
+    } catch (error) {
+      print(error);
+    }
+  }
+
+  void _showFullScreenDialog(BuildContext context) {
+    bool? isChecked = false;
+
+    Navigator.of(context).push(MaterialPageRoute<void>(
+      fullscreenDialog: true,
+      builder: (BuildContext context) {
+        return StatefulBuilder(
+          builder: (BuildContext context, StateSetter setState) {
+            return Scaffold(
+              appBar: AppBar(
+                title: AppText.large(
+                  'Terms and Conditions',
+                  fontSize: 20,
+                  textAlign: TextAlign.left,
+                  maxLine: 2,
+                  textOverflow: TextOverflow.ellipsis,
+                  color: Colors.white,
+                ),
+                backgroundColor: Colors.blue,
+                iconTheme: IconThemeData(color: Colors.white),
+              ),
+              body: Column(
+                children: [
+                  Expanded(
+                    child: SingleChildScrollView(
+                      child: Container(
+                        height: 700.0,
+                        child: Padding(
+                          padding: const EdgeInsets.all(5.0),
+                          child: ListView.builder(
+                            itemCount: policies.length + 1,
+                            itemBuilder: (context, index) {
+                              if (index < policies.length) {
+                                return Padding(
+                                  padding: const EdgeInsets.all(10),
+                                  child: Row(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        '${index + 1}.',
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .bodyText2
+                                            ?.copyWith(fontSize: 16),
+                                      ),
+                                      SizedBox(width: 8),
+                                      Expanded(
+                                        child: Text(
+                                          '${policies[index]['policyNote']}',
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .bodyText2!
+                                              .copyWith(fontSize: 16),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                );
+                              } else {
+                                return Column(
+                                  children: [
+                                    ListTile(
+                                      title: AppText.large(
+                                        'Please adhere to these policies during your stay. Thank You for your cooperation',
+                                        fontSize: 16,
+                                        textAlign: TextAlign.left,
+                                        maxLine: 3,
+                                        textOverflow: TextOverflow.ellipsis,
+                                        color: Colors.black,
+                                      ),
+                                    ),
+                                    SizedBox(height: 80)
+                                  ],
+                                );
+                              }
+                            },
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                  CheckboxListTile(
+                    title: Text('I agree to the policy', style: TextStyle(fontWeight: FontWeight.bold),),
+                    value: isChecked,
+                    onChanged: (bool? value) {
+                      setState(() {
+                        isChecked = value;
+                      });
+                    },
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 10.0),
+                    child: CustomButton(
+                      buttonText: 'Continue',
+                      onPressed: isChecked == true
+                          ? () {
+                              Navigator.of(context).pop();
+                              Get.to(
+                                () => ReserveScreen(
+                                    houseId: widget.houseId,
+                                    pricePerNight: widget.price),
+                                transition: Transition.rightToLeftWithFade,
+                              );
+                            }
+                          : null,
+                    ),
+                  ),
+                ],
+              ),
+            );
+          },
+        );
+      },
+    ));
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -634,32 +809,30 @@ class _ReserveBar extends StatelessWidget {
               RichText(
                 text: TextSpan(
                   children: [
-                    AppTextSpan.large('\$$price'),
+                    AppTextSpan.large('\RM ${widget.price}'),
                     AppTextSpan.medium(' /night'),
                   ],
                 ),
               ),
             ],
           ),
-          SizedBox(
-            width: 150,
-            child: CustomButton(
-              buttonText: authNotifier.isLoggedIn ? 'Reserve' : 'Sign In',
-              onPressed: () async {
-                if (authNotifier.isLoggedIn) {
-                  Get.to(
-                    () => ReserveScreen(houseId: houseId, pricePerNight: price),
-                    transition: Transition.rightToLeftWithFade,
-                  );
-                } else {
-                  Get.to(
-                    () => SignInWidget(),
-                    transition: Transition.fadeIn,
-                  );
-                }
-              },
+          if (authNotifier.userType == 'user')
+            SizedBox(
+              width: 150,
+              child: CustomButton(
+                buttonText: authNotifier.isLoggedIn ? 'Reserve' : 'Sign In',
+                onPressed: () async {
+                  if (authNotifier.isLoggedIn) {
+                    _showFullScreenDialog(context);
+                  } else {
+                    Get.to(
+                      () => SignInWidget(),
+                      transition: Transition.fadeIn,
+                    );
+                  }
+                },
+              ),
             ),
-          ),
         ],
       ),
     );

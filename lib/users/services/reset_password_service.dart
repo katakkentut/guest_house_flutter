@@ -1,6 +1,6 @@
 import 'dart:convert';
 
-import 'package:flutter_hotel_app_ui/utils/api-endpoint.dart';
+import 'package:guest_house_app/utils/api-endpoint.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' as http;
 
@@ -13,7 +13,7 @@ class ResetPasswordService {
 
       final response = await http.post(
         Uri.parse(
-            ApiEndPoints.baseUrl + ApiEndPoints.authEndpoints.resetPassword),
+            ApiEndPoints.baseUrl + ApiEndPoints.userEndpoints.resetPassword),
         body: jsonEncode({
           'oldPassword': oldPassword,
           'newPassword': newPassword,

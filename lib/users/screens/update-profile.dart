@@ -1,9 +1,9 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:flutter_hotel_app_ui/gen/colors.gen.dart';
-import 'package:flutter_hotel_app_ui/users/services/update_profile_sevice.dart';
-import 'package:flutter_hotel_app_ui/utils/api-endpoint.dart';
-import 'package:flutter_hotel_app_ui/widgets/app_text.dart';
+import 'package:guest_house_app/gen/colors.gen.dart';
+import 'package:guest_house_app/users/services/update_profile_sevice.dart';
+import 'package:guest_house_app/utils/api-endpoint.dart';
+import 'package:guest_house_app/widgets/app_text.dart';
 import 'package:image_picker/image_picker.dart';
 
 class UpdateProfileScreen extends StatefulWidget {
@@ -55,7 +55,7 @@ class _UpdateProfileScreenState extends State<UpdateProfileScreen> {
       if (result['message']['userImage'] != null) {
         // Assign the profile image URL to _profileImageUrl
         _profileImageUrl = ApiEndPoints.baseUrl +
-            ApiEndPoints.authEndpoints.userProfile +
+            ApiEndPoints.userEndpoints.userProfile +
             result['message']['userImage'];
 
         print(_profileImageUrl);

@@ -1,7 +1,7 @@
 // ignore_for_file: prefer_const_constructors
 
 import 'dart:io';
-import 'package:flutter_hotel_app_ui/auth/services/signin-service.dart';
+import 'package:guest_house_app/auth/services/signup-service.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:flutter/material.dart';
 
@@ -17,12 +17,14 @@ class _SignUpWidgetState extends State<SignUpWidget> {
   TextEditingController emailAddressController = TextEditingController();
   TextEditingController phoneController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
+  TextEditingController userCountry = TextEditingController();
   File? _image;
   final ImagePicker _picker = ImagePicker();
   FocusNode nameFocusNode = FocusNode();
   FocusNode emailAddressFocusNode = FocusNode();
   FocusNode phoneFocusNode = FocusNode();
   FocusNode passwordFocusNode = FocusNode();
+  FocusNode userCountryFocusNode = FocusNode();
   bool passwordVisibility = false;
 
   Future<void> _pickImage() async {
@@ -131,7 +133,18 @@ class _SignUpWidgetState extends State<SignUpWidget> {
                           return null;
                         },
                       ),
-     
+                      buildInput(
+                        'Country',
+                        userCountry,
+                        userCountryFocusNode,
+                        TextInputType.text,
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Please enter a valid country';
+                          }
+                          return null;
+                        },
+                      ),
                       buildInput(
                         'Password',
                         passwordController,
@@ -168,10 +181,13 @@ class _SignUpWidgetState extends State<SignUpWidget> {
                                 passwordController.text,
                                 phoneController.text,
                                 _image!,
+                                userCountry.text,
                               );
                               if (result['status']) {
                                 ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(content: Text(result['message'])),
+                                  SnackBar(
+                                      content: Text(result['message']),
+                                      backgroundColor: Colors.green),
                                 );
                               } else {
                                 ScaffoldMessenger.of(context).showSnackBar(
@@ -327,7 +343,8 @@ class _SignUpWidgetState extends State<SignUpWidget> {
                     _pickImage();
                   },
                   style: ElevatedButton.styleFrom(
-                    padding: EdgeInsets.all(8), backgroundColor: Colors.blue,
+                    padding: EdgeInsets.all(8),
+                    backgroundColor: Colors.blue,
                     shape: CircleBorder(),
                   ),
                   child: Icon(
